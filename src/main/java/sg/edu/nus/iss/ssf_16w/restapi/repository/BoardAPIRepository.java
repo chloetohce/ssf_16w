@@ -25,4 +25,14 @@ public class BoardAPIRepository {
         String data = ops.get(key, Integer.toString(id));
         return data;
     }
+
+    public boolean put(String key, String element, boolean upsert) {
+        HashOperations<String, String, String> ops = redisTemplate.opsForHash();
+        String[] values = element.split(",");
+        if (!ops.hasKey(key, values[0]) && !upsert) {
+            return false;
+        }
+        ops.put(key, values[0], element);
+        return true;
+    }
 }

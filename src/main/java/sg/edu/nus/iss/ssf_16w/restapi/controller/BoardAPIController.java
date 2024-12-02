@@ -15,8 +15,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
-
-
+import org.springframework.web.bind.annotation.RequestBody;
 
 @RestController
 @RequestMapping("/api/boardgame")
@@ -32,6 +31,16 @@ public class BoardAPIController {
     @GetMapping("/{board-id}")
     public ResponseEntity<JsonObject> getBoard(@PathVariable("board-id") String boardId) {
         return boardAPIService.getById(Integer.parseInt(boardId));
+    }
+    
+    @PostMapping("/{board-id}")
+    public ResponseEntity<JsonObject> updateBoard(@RequestBody String entity, @RequestParam(name = "upsert") String upsert)  {
+        boolean boolUpsert = false;
+        if (upsert.equals("true")) {
+            boolUpsert = true;
+        }
+        
+        return boardAPIService.updateBoard(entity, boolUpsert);
     }
     
     

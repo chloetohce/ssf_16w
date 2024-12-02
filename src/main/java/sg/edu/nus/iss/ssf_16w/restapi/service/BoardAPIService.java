@@ -1,7 +1,9 @@
 package sg.edu.nus.iss.ssf_16w.restapi.service;
 
 import java.io.IOException;
+import java.io.StringReader;
 
+import org.apache.catalina.connector.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
@@ -55,7 +57,7 @@ public class BoardAPIService {
             String[] data = rawData.split(",");
 
             JsonObject boardgame = Json.createObjectBuilder()
-                    .add("id", Integer.parseInt(data[0]))
+                    .add("gid", Integer.parseInt(data[0]))
                     .add("name", data[1])
                     .add("year", Integer.parseInt(data[2]))
                     .add("ranking", Integer.parseInt(data[3]))
@@ -73,6 +75,37 @@ public class BoardAPIService {
                 .build();
         
         return new ResponseEntity<>(error, HttpStatusCode.valueOf(404));
+    }
+
+    public ResponseEntity<JsonObject> updateBoard(String entity, boolean upsert) {
+        JsonArray arr = Json.createReader(new StringReader(entity)).readArray();
+        int counter = 0;
+        for (int i = 0; i < arr.size(); i++) {
+            JsonObject obj = arr.getJsonObject(i);
+            BoardGame bg = new BoardGame(
+                    obj.getInt("gid"),
+                    obj.getString("name"),
+                    obj.getInt("year"),
+                    obj.getInt("ranking"),
+                    obj.getInt("users_rated"),
+                    obj.getString("url"),
+                    obj.getString("image"));
+            boolean result = boardAPIRepository.put(Constant.KEY_BOARDGAME, bg.toString(), upsert);
+            if (result) {
+                counter++;
+            }
+        }
+
+        JsonObject response = Json.createObjectBuilder()
+                .add("update_count", counter)
+                .add("id", Constant.KEY_BOARDGAME)
+                .build();
+        if (counter == 0) {
+            return new ResponseEntity<>(response, HttpStatusCode.valueOf(400));
+        }
+
+        return ResponseEntity.ok(response);
+        
     }
     
 }
