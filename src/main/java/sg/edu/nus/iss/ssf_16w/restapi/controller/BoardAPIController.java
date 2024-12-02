@@ -34,9 +34,9 @@ public class BoardAPIController {
     }
     
     @PostMapping("/{board-id}")
-    public ResponseEntity<JsonObject> updateBoard(@RequestBody String entity, @RequestParam(name = "upsert") String upsert)  {
+    public ResponseEntity<JsonObject> updateBoard(@RequestBody String entity, @RequestParam(name = "upsert", required = false) String upsert)  {
         boolean boolUpsert = false;
-        if (upsert.equals("true")) {
+        if (upsert != null && upsert.equals("true")) {
             boolUpsert = true;
         }
         
